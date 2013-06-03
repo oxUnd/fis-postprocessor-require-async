@@ -1,0 +1,20 @@
+{
+  "name": "fis-preprocessor-require-async",
+  "version": "1.0.0",
+  "description": "分析require.async的组件，并记录下来",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiangshouding/fis-preprocessor-require-async.git"
+  },
+  "keywords": [
+    "fis"
+  ],
+  "author": "fis",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "63fe8d633b9234fed70acc950f06d9b9ddd1576d"
+}
