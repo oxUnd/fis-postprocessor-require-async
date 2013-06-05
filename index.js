@@ -11,14 +11,31 @@ function pregQuote (str, delimiter) {
 
 //require.async(path) to require resource
 function parseJs(content, file, conf){
-    var reg = /"(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|(\/\/[^\r\n\f]+|\/\*[\s\S]+?(?:\*\/|$))|\b(require\.async)\s*\(\s*("(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*')\s*/g;
+    var reg = /"(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|(\/\/[^\r\n\f]+|\/\*[\s\S]+?(?:\*\/|$))|\b(require\.async)\s*\(\s*("(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|\[[\s\S]*?\])\s*/g;
     return content.replace(reg, function(m, comment, type, value){
         if(type){
             switch (type){
                 case 'require.async':
-                    var info = fis.uri.getId(value, file.dirname);
-                    file.extras.async.push(info.id);
-                    m = 'require.async(' + info.quote + info.id + info.quote;
+                    var hasBrackets = false;
+                    var values = [];
+                    value = value.trim().replace(/(^\[|\]$)/g, function(m, v) {
+                        if (v) {
+                            hasBrackets = true;
+                        }
+                        return '';
+                    });
+                    values = value.split(/\s*,\s*/);
+                    values = values.map(function(v) {
+                        var info = fis.util.stringQuote(v);
+                        v = info.rest.trim();
+                        file.extras.async.push(v);
+                        return info.quote + v + info.quote;
+                    });
+                    if (hasBrackets) {
+                        m = 'require.async([' + values.join(', ') + ']';
+                    } else {
+                        m = 'require.async(' + values.join(', ');
+                    }
                     break;
             }
         }
@@ -28,8 +45,8 @@ function parseJs(content, file, conf){
 
 //<script|style ...>...</script|style> to analyse as js|css
 function parseHtml(content, file, conf){
-    conf.ld = conf.ld ? pregQuote(conf.ld) : '\\{%';
-    conf.rd = conf.rd ? pregQuote(conf.rd) : '%\\}';
+    var ld = pregQuote(conf.ld);
+    var rd = pregQuote(conf.rd);
     var reg = /(<script(?:\s+[\s\S]+?["'\s\w\/]>|>))([\s\S]*?)(?=<\/script>|$)/ig;
     content = content.replace(reg, function(m, $1, $2) {
         if($1){//<script>
@@ -37,7 +54,7 @@ function parseHtml(content, file, conf){
         }
         return m;
     });
-    reg = new RegExp('('+conf.ld+'script(?:\\s+[\\s\\S]+?["\'\\s\\w\\/]'+conf.rd+'|'+conf.rd+'))([\\s\\S]*?)(?='+conf.ld+'\\/script'+conf.rd+'|$)', 'ig');
+    reg = new RegExp('('+ld+'script(?:\\s+[\\s\\S]+?["\'\\s\\w\\/]'+rd+'|'+rd+'))([\\s\\S]*?)(?='+ld+'\\/script'+rd+'|$)', 'ig');
     return content.replace(reg, function(m, $1, $2) {
         if($1){//<script>
             m = $1 + parseJs($2, file, conf);
@@ -47,6 +64,10 @@ function parseHtml(content, file, conf){
 }
 
 module.exports = function(content, file, conf){
+
+    conf.ld = conf.ld ? conf.ld : '{%';
+    conf.rd = conf.rd ? conf.rd : '%}';
+
     var initial = false;
     if (file.extras == undefined) {
         file.extras = {};
@@ -55,6 +76,18 @@ module.exports = function(content, file, conf){
     file.extras.async = [];
     if (file.rExt === '.tpl' || file.rExt === '.html') {
         content = parseHtml(content, file, conf);
+        if (file.extras.isPage) {
+            content = content.replace(new RegExp('(?:'+pregQuote(conf.ld) +'\\*[\\s\\S]+?(?:\\*'+pregQuote(conf.rd)+'|$))|(?:([\s\S]*)('+pregQuote(conf.ld)+'\\/block'+pregQuote(conf.rd)+'))'),
+                function(m, before, blockClose) {
+                    if (blockClose) {
+                        m = before +
+                            conf.ld + 'require name="' + file.id + '"' + conf.rd +
+                            blockClose;
+                    }
+                    return m;
+                }
+            );
+        }
     } else if (file.rExt === '.js') {
         content = parseJs(content, file, conf);
     }
