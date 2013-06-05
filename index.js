@@ -28,8 +28,9 @@ function parseJs(content, file, conf){
                     values = values.map(function(v) {
                         var info = fis.util.stringQuote(v);
                         v = info.rest.trim();
-                        file.extras.async.push(v);
-                        return info.quote + v + info.quote;
+                        var uri = fis.uri.getId(v, file.dirname);
+                        file.extras.async.push(uri.id);
+                        return info.quote + uri.id + info.quote;
                     });
                     if (hasBrackets) {
                         m = 'require.async([' + values.join(', ') + ']';
@@ -77,7 +78,8 @@ module.exports = function(content, file, conf){
     if (file.rExt === '.tpl' || file.rExt === '.html') {
         content = parseHtml(content, file, conf);
         if (file.extras.isPage) {
-            content = content.replace(new RegExp('(?:'+pregQuote(conf.ld) +'\\*[\\s\\S]+?(?:\\*'+pregQuote(conf.rd)+'|$))|(?:([\s\S]*)('+pregQuote(conf.ld)+'\\/block'+pregQuote(conf.rd)+'))'),
+            var reg = new RegExp('(?:'+pregQuote(conf.ld) +'\\*[\\s\\S]+?(?:\\*'+pregQuote(conf.rd)+'|$))|(?:([\\s\\S]*)('+pregQuote(conf.ld)+'\\/block'+pregQuote(conf.rd)+'))', 'im');
+            content = content.replace(reg,
                 function(m, before, blockClose) {
                     if (blockClose) {
                         m = before +
