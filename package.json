@@ -1,6 +1,6 @@
 {
   "name": "fis-preprocessor-require-async",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "分析require.async的组件，并记录下来",
   "main": "index.js",
   "scripts": {
