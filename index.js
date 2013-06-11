@@ -90,7 +90,7 @@ module.exports = function(content, file, conf){
                 }
             );
             //don't match block
-            if (!reg.text(content)) {
+            if (!reg.test(content)) {
                 content = content + conf.ld + 'require name="' + file.id + '"' + conf.rd;
             }
         }
