@@ -89,6 +89,10 @@ module.exports = function(content, file, conf){
                     return m;
                 }
             );
+            //don't match block
+            if (!reg.text(content)) {
+                content = content + conf.ld + 'require name="' + file.id + '"' + conf.rd;
+            }
         }
     } else if (file.rExt === '.js') {
         content = parseJs(content, file, conf);
