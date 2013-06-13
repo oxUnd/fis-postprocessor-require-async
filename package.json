@@ -1,5 +1,5 @@
 {
-  "name": "fis-preprocessor-require-async",
+  "name": "fis-postprocessor-require-async",
   "version": "0.0.1",
   "description": "分析require.async的组件，并记录下来",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xiangshouding/fis-preprocessor-require-async.git"
+    "url": "https://github.com/xiangshouding/fis-postprocessor-require-async.git"
   },
   "keywords": [
     "fis"
