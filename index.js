@@ -29,7 +29,9 @@ function parseJs(content, file, conf){
                         var info = fis.util.stringQuote(v);
                         v = info.rest.trim();
                         var uri = fis.uri.getId(v, file.dirname);
-                        file.extras.async.push(uri.id);
+                        if (file.extras.async.indexOf(uri.id) < 0) {
+                            file.extras.async.push(uri.id);
+                        }
                         return info.quote + uri.id + info.quote;
                     });
                     if (hasBrackets) {
@@ -48,14 +50,14 @@ function parseJs(content, file, conf){
 function parseHtml(content, file, conf){
     var ld = pregQuote(conf.ld);
     var rd = pregQuote(conf.rd);
-    var reg = /(<script(?:\s+[\s\S]+?["'\s\w\/]>|>))([\s\S]*?)(?=<\/script>|$)/ig;
+    var reg = /(<script(?:\s+[\s\S]*?["'\s\w\/]>|>))([\s\S]*?)(?=<\/script>|$)/ig;
     content = content.replace(reg, function(m, $1, $2) {
         if($1){//<script>
             m = $1 + parseJs($2, file, conf);
         }
         return m;
     });
-    reg = new RegExp('('+ld+'script(?:\\s+[\\s\\S]+?["\'\\s\\w\\/]'+rd+'|'+rd+'))([\\s\\S]*?)(?='+ld+'\\/script'+rd+'|$)', 'ig');
+    reg = new RegExp('('+ld+'script(?:\\s+[\\s\\S]*?["\'\\s\\w\\/]'+rd+'|'+rd+'))([\\s\\S]*?)(?='+ld+'\\/script'+rd+'|$)', 'ig');
     return content.replace(reg, function(m, $1, $2) {
         if($1){//<script>
             m = $1 + parseJs($2, file, conf);
@@ -99,9 +101,9 @@ module.exports = function(content, file, conf){
     }
     //
     if (file.extras.async.length == 0) {
-        file.extras.async = undefined;
+        delete file.extras.async;
         if (initial) {
-            file.extras = undefined;
+            delete file.extras;
         }
     }
     return content;
