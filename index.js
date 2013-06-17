@@ -50,14 +50,14 @@ function parseJs(content, file, conf){
 function parseHtml(content, file, conf){
     var ld = pregQuote(conf.ld);
     var rd = pregQuote(conf.rd);
-    var reg = /(<script(?:\s+[\s\S]*?["'\s\w\/]>|>))([\s\S]*?)(?=<\/script>|$)/ig;
+    var reg = /(<script(?:\s+[\s\S]*?["'\s\w\/]>|\s*>))([\s\S]*?)(?=<\/script>|$)/ig;
     content = content.replace(reg, function(m, $1, $2) {
         if($1){//<script>
             m = $1 + parseJs($2, file, conf);
         }
         return m;
     });
-    reg = new RegExp('('+ld+'script(?:\\s+[\\s\\S]*?["\'\\s\\w\\/]'+rd+'|'+rd+'))([\\s\\S]*?)(?='+ld+'\\/script'+rd+'|$)', 'ig');
+    reg = new RegExp('('+ld+'script(?:\\s+[\\s\\S]*?["\'\\s\\w\\/]'+rd+'|\\s*'+rd+'))([\\s\\S]*?)(?='+ld+'\\/script'+rd+'|$)', 'ig');
     return content.replace(reg, function(m, $1, $2) {
         if($1){//<script>
             m = $1 + parseJs($2, file, conf);
