@@ -89,7 +89,7 @@ module.exports = function(content, file, conf){
                 function(m, before, blockClose) {
                     if (blockClose) {
                         m = before +
-                            conf.ld + 'require name="' + file.id + '"' + conf.rd +
+                            o_ld + 'require name="' + file.id + '"' + o_rd +
                             blockClose;
                     }
                     return m;
