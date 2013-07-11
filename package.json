@@ -1,6 +1,6 @@
 {
   "name": "fis-postprocessor-require-async",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "分析require.async的组件，并记录下来",
   "main": "index.js",
   "scripts": {
