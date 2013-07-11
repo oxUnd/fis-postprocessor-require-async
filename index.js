@@ -4,6 +4,9 @@
  */
 
 'use strict';
+
+var ld, rd;
+
 function pregQuote (str, delimiter) {
     // http://kevin.vanzonneveld.net
     return (str + '').replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
@@ -48,8 +51,6 @@ function parseJs(content, file, conf){
 
 //<script|style ...>...</script|style> to analyse as js|css
 function parseHtml(content, file, conf){
-    var ld = pregQuote(conf.ld);
-    var rd = pregQuote(conf.rd);
     var reg = /(<script(?:\s+[\s\S]*?["'\s\w\/]>|\s*>))([\s\S]*?)(?=<\/script>|$)/ig;
     content = content.replace(reg, function(m, $1, $2) {
         if($1){//<script>
@@ -68,8 +69,11 @@ function parseHtml(content, file, conf){
 
 module.exports = function(content, file, conf){
 
-    conf.ld = conf.ld ? conf.ld : '{%';
-    conf.rd = conf.rd ? conf.rd : '%}';
+    var o_ld = ld = conf.left_delimiter || fis.config.get('settings.smarty.left_delimiter') || '{%';
+    var o_rd = rd = conf.right_delimiter || fis.config.get('settings.smarty.right_delimiter') || '%}';
+    
+    ld = pregQuote(ld);
+    rd = pregQuote(rd);
 
     var initial = false;
     if (file.extras == undefined) {
@@ -80,7 +84,7 @@ module.exports = function(content, file, conf){
     if (file.rExt === '.tpl' || file.rExt === '.html') {
         content = parseHtml(content, file, conf);
         if (file.extras.isPage) {
-            var reg = new RegExp('(?:'+pregQuote(conf.ld) +'\\*[\\s\\S]+?(?:\\*'+pregQuote(conf.rd)+'|$))|(?:([\\s\\S]*)('+pregQuote(conf.ld)+'\\/block'+pregQuote(conf.rd)+'))', 'im');
+            var reg = new RegExp('(?:'+ld+'\\*[\\s\\S]+?(?:\\*'+rd+'|$))|(?:([\\s\\S]*)('+ld+'\\/block'+rd+'))', 'im');
             content = content.replace(reg,
                 function(m, before, blockClose) {
                     if (blockClose) {
@@ -93,7 +97,12 @@ module.exports = function(content, file, conf){
             );
             //don't match block
             if (!reg.test(content)) {
-                content = content + conf.ld + 'require name="' + file.id + '"' + conf.rd;
+                reg = new RegExp(ld+'\\/body'+rd, 'i');
+                content = content.replace(reg,
+                    function(m) {
+                        return o_ld + 'require name="' + file.id + '"' + o_rd + m;
+                    }
+                );
             }
         }
     } else if (file.rExt === '.js') {
