@@ -84,25 +84,13 @@ module.exports = function(content, file, conf){
     if (file.rExt === '.tpl' || file.rExt === '.html') {
         content = parseHtml(content, file, conf);
         if (file.extras.isPage) {
-            var reg = new RegExp('(?:'+ld+'\\*[\\s\\S]+?(?:\\*'+rd+'|$))|(?:([\\s\\S]*)('+ld+'\\/block'+rd+'))', 'im');
-            content = content.replace(reg,
-                function(m, before, blockClose) {
-                    if (blockClose) {
-                        m = before +
-                            o_ld + 'require name="' + file.id + '"' + o_rd +
-                            blockClose;
-                    }
-                    return m;
-                }
-            );
-            //don't match block
-            if (!reg.test(content)) {
-                reg = new RegExp(ld+'\\/body'+rd, 'i');
-                content = content.replace(reg,
-                    function(m) {
-                        return o_ld + 'require name="' + file.id + '"' + o_rd + m;
-                    }
-                );
+            var pos = content.lastIndexOf(o_ld + '/block' + o_rd);
+            if(pos < 0){
+                pos = content.indexOf(o_ld + '/body' + o_rd);
+            }
+            if(pos > 0){
+                var insert = o_ld + "require name='" + file.id + "'" + o_rd;
+                content = content.substring(0, index) + insert + content.substring(index);
             }
         }
     } else if (file.rExt === '.js') {
