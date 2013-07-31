@@ -90,7 +90,7 @@ module.exports = function(content, file, conf){
             }
             if(pos > 0){
                 var insert = o_ld + "require name='" + file.id + "'" + o_rd;
-                content = content.substring(0, index) + insert + content.substring(index);
+                content = content.substring(0, pos) + insert + content.substring(pos);
             }
         }
     } else if (file.rExt === '.js') {
