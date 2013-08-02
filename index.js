@@ -84,8 +84,10 @@ module.exports = function(content, file, conf){
     if (file.rExt === '.tpl' || file.rExt === '.html') {
         content = parseHtml(content, file, conf);
         if (file.extras.isPage) {
-            var pos = content.lastIndexOf(o_ld + '/block' + o_rd);
-            if(pos < 0){
+            var reg = new RegExp(ld + 'extends\\s+'), pos;
+            if(reg.test(content)){
+                pos = content.lastIndexOf(o_ld + '/block' + o_rd);
+            } else {
                 pos = content.indexOf(o_ld + '/body' + o_rd);
             }
             if(pos > 0){
