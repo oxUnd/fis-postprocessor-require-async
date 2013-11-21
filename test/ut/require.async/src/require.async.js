@@ -1,0 +1,1 @@
+require.async('./require.async.a.js');
