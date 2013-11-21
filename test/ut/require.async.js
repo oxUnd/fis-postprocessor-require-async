@@ -3,7 +3,7 @@
 
 var fis = require('fis');
 //设置项目路劲
-fis.project.setProjectRoot('./require.async');
+fis.project.setProjectRoot(__dirname + '/require.async');
 var PROJECT_ROOT = fis.project.getProjectPath();
 //加载模块配置文件
 require(PROJECT_ROOT + '/fis-conf.js');
@@ -12,7 +12,7 @@ var _ = fis.util;
 var file = fis.file;
 
 var expect = require('chai').expect;
-var _parser = require('../../index.js');
+var _parser = require(__dirname + '/../../index.js');
 
 
 
