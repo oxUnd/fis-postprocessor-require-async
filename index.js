@@ -90,8 +90,8 @@ function parseHtml(content, file, conf){
 
 module.exports = function(content, file, conf){
 
-    var o_ld = ld = conf.left_delimiter || fis.config.get('settings.smarty.left_delimiter') || '{%';
-    var o_rd = rd = conf.right_delimiter || fis.config.get('settings.smarty.right_delimiter') || '%}';
+    var o_ld = ld = conf.left_delimiter || fis.config.get('settings.smarty.left_delimiter') || fis.config.get('settings.template.left_delimiter') || '{%';
+    var o_rd = rd = conf.right_delimiter || fis.config.get('settings.smarty.right_delimiter') || fis.config.get('settings.template.right_delimiter') || '%}';
     
     ld = pregQuote(ld);
     rd = pregQuote(rd);
@@ -102,7 +102,7 @@ module.exports = function(content, file, conf){
         initial = true;
     }
     file.extras.async = [];
-    if (file.rExt === '.tpl' || file.rExt === '.html') {
+    if (file.isHtmlLike) {
         content = parseHtml(content, file, conf);
         if (file.extras.isPage) {
             var reg = new RegExp(ld + 'extends\\s+'), pos;
