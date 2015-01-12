@@ -50,7 +50,7 @@ function analyseComment(file, comment){
 
 //require.async(path) to require resource
 function parseJs(content, file, conf){
-    var reg = /"(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|(\/\/[^\r\n\f]+|\/\*[\s\S]+?(?:\*\/|$))|\b(require\.async)\s*\(\s*("(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|\[[\s\S]*?\])\s*/g;
+    var reg = /"(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|(\/\/[^\r\n\f]+|\/\*[\s\S]+?(?:\*\/|$))|\b(require\.async|require)\s*\(\s*("(?:[^\\"\r\n\f]|\\[\s\S])*"|'(?:[^\\'\n\r\f]|\\[\s\S])*'|\[[\s\S]*?\])\s*/g;
     return content.replace(reg, function(m, comment, type, value){
         if(type){
             switch (type){
@@ -60,6 +60,15 @@ function parseJs(content, file, conf){
                         m = 'require.async([' + res.values.join(', ') + ']';
                     } else {
                         m = 'require.async(' + res.values.join(', ');
+                    }
+                    break;
+                case 'require':
+
+                    // 只处理 require 的数组用法
+                    if (value[0] === '[') {
+                        var res = addAsync(file, value);
+
+                        m = 'require([' + res.values.join(', ') + ']';
                     }
                     break;
             }
@@ -92,7 +101,7 @@ module.exports = function(content, file, conf){
 
     var o_ld = ld = conf.left_delimiter || fis.config.get('settings.smarty.left_delimiter') || fis.config.get('settings.template.left_delimiter') || '{%';
     var o_rd = rd = conf.right_delimiter || fis.config.get('settings.smarty.right_delimiter') || fis.config.get('settings.template.right_delimiter') || '%}';
-    
+
     ld = pregQuote(ld);
     rd = pregQuote(rd);
 
